@@ -85,19 +85,20 @@ namespace AnswerDigitalAdvancedAutomationTest
             GoToSummerDresses();
             IWebElement slider = driver.FindElement(By.XPath(sliderTab));
             Actions action = new Actions(driver);
+            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
             ScrollDown();
             //Slider changes the price
             action.ClickAndHold(slider).MoveByOffset(-142, 0).Release(slider).Build().Perform();
             // Search results are updated
+            //wait.Until(ExpectedConditions.ElementIsVisible(By.Id());
             // Items returned are within the price range
             
         }
 
         [Test]
-        public void TestCase4()
+        public void TestCase4HappyPath()
         {
             // User Story: As a user I want to create a new account so that I can start buying items using my personal account.
-            // Form can only accept valid information
 
             string loginButtonID = "login";
             string correctEmail = "Ga4rcia@hotmail.co.uk";
@@ -172,6 +173,41 @@ namespace AnswerDigitalAdvancedAutomationTest
             Assert.AreEqual(expectedAccountName, firstName + " " + lastName);
         }
 
+        [Test]
+        public void TestCase4UnhappyPath()
+        {
+            // User Story: As a user I want to create a new account so that I can start buying items using my personal account.
+
+            string loginButtonID = "login";
+            string correctEmail = "Ga6rcia@hotmail.co.uk";
+            string incorrectEmail = "Garciahotmail.co.uk";
+            string createEmailTabID = "email_create";
+            string invalidEmailAlertID = "create_account_error";
+            string registerButtonID = "submitAccount";
+            string accountCreationForm = "account-creation_form";
+            string alertMessageXpath = "/html/body/div/div[2]/div/div[3]/div/div/p";
+            string expectedAlertMessageText = "There are 8 errors";
+
+            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
+            Actions action = new Actions(driver);
+
+            driver.Navigate().GoToUrl("http://automationpractice.com/index.php");
+            driver.FindElement(By.ClassName(loginButtonID)).Click();
+            wait.Until(ExpectedConditions.ElementIsVisible(By.Id(createEmailTabID)));
+            driver.FindElement(By.Id(createEmailTabID)).SendKeys(incorrectEmail + Keys.Return);
+            wait.Until(ExpectedConditions.ElementIsVisible(By.Id(invalidEmailAlertID)));
+
+            // Invalid Information will give an error message
+            Assert.IsTrue(driver.FindElement(By.Id(invalidEmailAlertID)).Displayed);
+            driver.FindElement(By.Id(createEmailTabID)).SendKeys(correctEmail + Keys.Return);
+            wait.Until(ExpectedConditions.ElementIsVisible(By.Id(accountCreationForm)));
+            driver.FindElement(By.Id(registerButtonID)).Click();
+
+            // Form can only accept valid information
+            wait.Until(ExpectedConditions.ElementIsVisible(By.XPath(alertMessageXpath)));
+            var actualAlertMeassage = driver.FindElement(By.XPath(alertMessageXpath)).Text;
+            Assert.AreEqual(expectedAlertMessageText, actualAlertMeassage);
+        }
 
         public void GoToSummerDresses()
         {
