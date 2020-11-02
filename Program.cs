@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ExpectedConditions = SeleniumExtras.WaitHelpers.ExpectedConditions;
+using System.IO;
 
 namespace AnswerDigitalAdvancedAutomationTest
 {
@@ -39,7 +40,7 @@ namespace AnswerDigitalAdvancedAutomationTest
             driver.FindElement(By.XPath(clickTshirts)).Click();
             ScrollDown();
             driver.FindElement(By.XPath(addToCart)).Click();
-            System.Threading.Thread.Sleep(2000);
+            wait.Until(ExpectedConditions.ElementIsVisible(By.XPath(closeAlert)));
             driver.FindElement(By.XPath(closeAlert)).Click();
             ScrollUp();
             driver.FindElement(By.XPath(goToCart)).Click();
@@ -100,8 +101,10 @@ namespace AnswerDigitalAdvancedAutomationTest
         {
             // User Story: As a user I want to create a new account so that I can start buying items using my personal account.
 
+            // Make sure the string correctEmail prior to running test otherwise it will fail
+
             string loginButtonID = "login";
-            string correctEmail = "Ga4rcia@hotmail.co.uk";
+            string correctEmail = "G22rcia@hotmail.co.uk";
             string incorrectEmail = "Garciahotmail.co.uk";
             string createEmailTabID = "email_create";
             string invalidEmailAlertID = "create_account_error";
@@ -174,12 +177,14 @@ namespace AnswerDigitalAdvancedAutomationTest
         }
 
         [Test]
-        public void TestCase4UnhappyPath()
+        public void ATestCase4UnhappyPath()
         {
             // User Story: As a user I want to create a new account so that I can start buying items using my personal account.
 
+            // Make sure the string correctEmail prior to running test otherwise it will fail
+
             string loginButtonID = "login";
-            string correctEmail = "Ga6rcia@hotmail.co.uk";
+            string correctEmail = "Ga7rcia@hotmail.co.uk";
             string incorrectEmail = "Garciahotmail.co.uk";
             string createEmailTabID = "email_create";
             string invalidEmailAlertID = "create_account_error";
@@ -207,6 +212,34 @@ namespace AnswerDigitalAdvancedAutomationTest
             wait.Until(ExpectedConditions.ElementIsVisible(By.XPath(alertMessageXpath)));
             var actualAlertMeassage = driver.FindElement(By.XPath(alertMessageXpath)).Text;
             Assert.AreEqual(expectedAlertMessageText, actualAlertMeassage);
+        }
+
+        [Test]
+        public void TestCase5()
+        {
+            // As a user when browsing the 'Our stores' page, I want to drag the map to see a store from West Palm Beach, so that I can take a screenshot for future reference
+
+            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
+            Actions action = new Actions(driver);
+            IJavaScriptExecutor scriptExecutor = driver as IJavaScriptExecutor;
+
+            string dismissButtonId = "dismissButton";
+            string storesXpath = "/html/body/div/div[2]/div/div[3]/div[1]/div[3]/div/div/a";
+            GoToSummerDresses();
+            ScrollDown();
+            driver.FindElement(By.XPath(storesXpath)).Click();
+            wait.Until(ExpectedConditions.ElementIsVisible(By.ClassName(dismissButtonId)));
+            driver.FindElement(By.ClassName(dismissButtonId)).Click();
+            scriptExecutor.ExecuteScript("window.scrollBy(0,300);");
+            var mapID = driver.FindElement(By.Id("map"));
+
+            // User can Scroll through map
+            action.ClickAndHold(mapID).MoveByOffset(0, -300).Release(mapID).Build().Perform();
+            action.ClickAndHold(mapID).MoveByOffset(0, -150).Release(mapID).Build().Perform();
+
+            // West Palm BNeach must be within screenshot
+            driver.TakeScreenshot().SaveAsFile(fileName:"West Palm Beach");
+
         }
 
         public void GoToSummerDresses()
